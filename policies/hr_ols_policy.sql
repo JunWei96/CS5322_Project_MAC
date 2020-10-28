@@ -17,14 +17,14 @@ BEGIN
     SA_COMPONENTS.CREATE_LEVEL (
         policy_name => 'HR_OLS_POLICY',
         level_num   => 3000,
-        short_name  => 'TS',
-        long_name   => 'TOP_SECRET');
+        short_name  => 'HS',
+        long_name   => 'HIGHLY_SENSITIVE');
 
     SA_COMPONENTS.CREATE_LEVEL (
         policy_name => 'HR_OLS_POLICY',
         level_num   => 2000,
         short_name  => 'S',
-        long_name   => 'SECRET');
+        long_name   => 'SENSITIVE');
       
     SA_COMPONENTS.CREATE_LEVEL (
         policy_name => 'HR_OLS_POLICY',
@@ -61,6 +61,12 @@ BEGIN
         long_name        => 'GENERAL_EMP',
         short_name       => 'GE',
         comp_num         =>  2000);
+
+    SA_COMPONENTS.CREATE_GROUP (
+        policy_name     => 'HR_OLS_POLICY',
+        group_num       => 3000,
+        short_name      => 'GLOB',
+        long_name       => 'GLOBAL');
 
     SA_COMPONENTS.CREATE_GROUP (
         policy_name     => 'HR_OLS_POLICY',
