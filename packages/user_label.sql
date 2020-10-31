@@ -33,8 +33,22 @@ CREATE OR REPLACE PACKAGE BODY PRIVATE_USER_LABEL_FUNCTIONS IS
     FUNCTION get_user_compartments(sessionUser varchar, group_type varchar)
     RETURN VARCHAR IS returnValue VARCHAR2(30);
     BEGIN
-        RETURN '';
+        IF (sessionUser = 'SYSTEM') THEN
+            RETURN 'SA';
+        END IF;
+        
+        CASE
+        WHEN group_type = 'hr' THEN
+            RETURN 'HR';
+        WHEN group_type = 'finance' THEN
+            RETURN 'FIN'; 
+        WHEN group_type = 'auditor' THEN
+            RETURN 'AUD';
+        ELSE
+            RETURN 'GE';              
+        END CASE;
     END;
+
 END PRIVATE_USER_LABEL_FUNCTIONS;
 /
 CREATE OR REPLACE PACKAGE BODY USER_LABEL_FUNCTIONS IS
