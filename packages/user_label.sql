@@ -27,7 +27,11 @@ CREATE OR REPLACE PACKAGE BODY PRIVATE_USER_LABEL_FUNCTIONS IS
     FUNCTION get_user_groups(sessionUser varchar, country varchar)
     RETURN VARCHAR IS returnValue VARCHAR2(30);
     BEGIN
-        RETURN '';
+        IF (sessionUser = 'SYSTEM') THEN
+            RETURN 'GLOB';
+        END IF;
+
+        RETURN country;
     END;
     
     FUNCTION get_user_compartments(sessionUser varchar, group_type varchar)
@@ -42,8 +46,6 @@ CREATE OR REPLACE PACKAGE BODY PRIVATE_USER_LABEL_FUNCTIONS IS
             RETURN 'HR';
         WHEN group_type = 'finance' THEN
             RETURN 'FIN'; 
-        WHEN group_type = 'auditor' THEN
-            RETURN 'AUD';
         ELSE
             RETURN 'GE';              
         END CASE;
