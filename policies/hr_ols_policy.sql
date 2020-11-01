@@ -79,4 +79,14 @@ BEGIN
         group_num       => 1000,
         short_name      => 'US',
         long_name       => 'United_States');
+
+    SA_USER_ADMIN.SET_USER_PRIVS(
+        policy_name   => 'HR_OLS_POLICY',
+        user_name     => 'DUKE', 
+        privileges    => 'READ');
+
+    SA_USER_ADMIN.SET_USER_PRIVS(
+        policy_name   => 'HR_OLS_POLICY',
+        user_name     => 'SYSTEM_ADMIN', 
+        privileges    => 'FULL');
 END;
