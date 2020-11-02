@@ -1,6 +1,7 @@
-CREATE TABLE employees (
+CONNECT DB_OWNER/DB_OWNER
+
+CREATE TABLE DB_OWNER.employees (
   id int PRIMARY KEY,
-  manager_id int,
   job_id int,
   corporation_group_id int,
   slug varchar(30) UNIQUE,
@@ -10,71 +11,35 @@ CREATE TABLE employees (
   start_date date
 );
 
-CREATE TABLE employees_sensitive_data (
+CREATE TABLE DB_OWNER.jobs (
   id int PRIMARY KEY,
-  address varchar(255),
-  phone varchar(50),
-  salary int,
-  biography varchar(255)
+  job_title varchar(100),
+  salary int
 );
 
-CREATE TABLE credentials (
-  employee_id int PRIMARY KEY,
-  hashed_password varchar(255),
-  salt varchar(50),
-  session_token varchar(100),
-  session_expriy date
-);
-
-CREATE TABLE past_credentials (
-  id int PRIMARY KEY,
-  employee_id int,
-  hashed_password varchar(255),
-  salt varchar(50)
-);
-
-CREATE TABLE leaves (
-  id int PRIMARY KEY,
-  emp_id int,
-  start_date date,
-  end_date date,
-  remark varchar(255),
-  leave_type varchar(20) not null check (leave_type in ('mc', 'annual_leave', 'compassionate_leave')),
-  leave_application varchar(20) DEFAULT 'not_applied' not null check (leave_application in ('not_applied', 'applied')),
-  application_status varchar(20) check (application_status in ('approved', 'rejected', 'obselete')),
-  cancellation_application varchar(20) DEFAULT 'not_applied' not null check (cancellation_application in ('not_applied', 'applied')),
-  cancellation_status varchar(20) check (cancellation_status in ('approved', 'rejected'))
-);
-
-CREATE TABLE evaluations (
+CREATE TABLE DB_OWNER.hr_reviews (
   id int PRIMARY KEY,
   author int,
-  recipient int,
-  notes varchar(255)
+  employee int,
+  date_created date,
+  link varchar(255)
 );
 
-CREATE TABLE claims (
+CREATE TABLE DB_OWNER.reports (
   id int PRIMARY KEY,
-  creator int,
-  hr_approved_by int,
-  finance_approved_by int,
-  amount int,
-  remark varchar(255)
+  author int,
+  date_created date,
+  name varchar(255),
+  link varchar(255)
 );
 
-CREATE TABLE payslips (
-  id int PRIMARY KEY,
-  recipient int,
-  amount_paid int
-);
-
-CREATE TABLE countries (
+CREATE TABLE DB_OWNER.countries (
   id int PRIMARY KEY,
   name varchar(100),
   country_code varchar(10)
 );
 
-CREATE TABLE locations (
+CREATE TABLE DB_OWNER.locations (
   id int PRIMARY KEY,
   country_id int,
   address varchar(255),
@@ -82,60 +47,23 @@ CREATE TABLE locations (
   city varchar(100)
 );
 
-CREATE TABLE corporation_groups (
+CREATE TABLE DB_OWNER.corporation_groups (
   id int PRIMARY KEY,
-  parent_group_id int,
   location_id int,
   name varchar(100),
   group_type varchar(20) DEFAULT 'normal' check (group_type in ('normal', 'hr', 'auditor', 'finance'))
 );
 
-CREATE TABLE jobs (
-  id int PRIMARY KEY,
-  job_title varchar(100),
-  min_salary int,
-  max_salary int
-);
+ALTER TABLE DB_OWNER.employees ADD FOREIGN KEY (job_id) REFERENCES jobs (id);
 
-CREATE TABLE job_history (
-  employee_id int,
-  job_id int,
-  start_date date,
-  end_date date
-);
+ALTER TABLE DB_OWNER.employees ADD FOREIGN KEY (corporation_group_id) REFERENCES corporation_groups (id);
 
-ALTER TABLE employees ADD FOREIGN KEY (manager_id) REFERENCES employees (id);
+ALTER TABLE DB_OWNER.hr_reviews ADD FOREIGN KEY (author) REFERENCES employees (id);
 
-ALTER TABLE employees ADD FOREIGN KEY (job_id) REFERENCES jobs (id) ON DELETE SET NULL;
+ALTER TABLE DB_OWNER.hr_reviews ADD FOREIGN KEY (employee) REFERENCES employees (id);
 
-ALTER TABLE employees ADD FOREIGN KEY (corporation_group_id) REFERENCES corporation_groups (id);
+ALTER TABLE DB_OWNER.reports ADD FOREIGN KEY (author) REFERENCES employees (id);
 
-ALTER TABLE employees_sensitive_data ADD FOREIGN KEY (id) REFERENCES employees (id);
+ALTER TABLE DB_OWNER.locations ADD FOREIGN KEY (country_id) REFERENCES countries (id);
 
-ALTER TABLE credentials ADD FOREIGN KEY (employee_id) REFERENCES employees (id);
-
-ALTER TABLE past_credentials ADD FOREIGN KEY (employee_id) REFERENCES credentials (employee_id) ON DELETE CASCADE;
-
-ALTER TABLE leaves ADD FOREIGN KEY (emp_id) REFERENCES employees (id);
-
-ALTER TABLE evaluations ADD FOREIGN KEY (author) REFERENCES employees (id);
-
-ALTER TABLE evaluations ADD FOREIGN KEY (recipient) REFERENCES employees (id);
-
-ALTER TABLE claims ADD FOREIGN KEY (creator) REFERENCES employees (id);
-
-ALTER TABLE claims ADD FOREIGN KEY (hr_approved_by) REFERENCES employees (id);
-
-ALTER TABLE claims ADD FOREIGN KEY (finance_approved_by) REFERENCES employees (id);
-
-ALTER TABLE payslips ADD FOREIGN KEY (recipient) REFERENCES employees (id);
-
-ALTER TABLE locations ADD FOREIGN KEY (country_id) REFERENCES countries (id);
-
-ALTER TABLE corporation_groups ADD FOREIGN KEY (parent_group_id) REFERENCES corporation_groups (id);
-
-ALTER TABLE corporation_groups ADD FOREIGN KEY (location_id) REFERENCES locations (id);
-
-ALTER TABLE job_history ADD FOREIGN KEY (employee_id) REFERENCES employees (id);
-
-ALTER TABLE job_history ADD FOREIGN KEY (job_id) REFERENCES jobs (id) ON DELETE CASCADE;
+ALTER TABLE DB_OWNER.corporation_groups ADD FOREIGN KEY (location_id) REFERENCES locations (id);
