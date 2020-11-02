@@ -191,8 +191,8 @@ BEGIN
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_SG','HS:HR,GE:SG');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_US','HS:HR,GE:US');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_GLOB','HS:HR,GE:GLOB');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_SG','HS:AUD,GE:SG');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_US','HS:AUD,GE:US');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_SG','HS:AUD,GE,HR,FIN:SG');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_US','HS:AUD,GE,HR,FIN:US');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_SG','HS:FIN,GE:SG');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_US','HS:FIN,GE:US');
 END;
@@ -237,7 +237,7 @@ rem  Test: reports table
 rem ====================================================================
 CONNECT DB_OWNER/DB_OWNER;
 SELECT id, author, link FROM DB_OWNER.reports;
--- Will return all the audit reports from SG
+-- Will return all the audit,finance,hr reports from SG
 CONNECT AUD_SG/AUD_SG;
 SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
     INNER JOIN DB_OWNER.employees E ON R.author = E.id
@@ -245,7 +245,7 @@ SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R
     INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
     INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 
--- Will return all the audit reports from US
+-- Will return all the audit,finance,hr reports from US
 CONNECT AUD_US/AUD_US;
 SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
     INNER JOIN DB_OWNER.employees E ON R.author = E.id
