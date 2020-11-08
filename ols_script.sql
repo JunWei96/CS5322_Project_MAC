@@ -169,6 +169,7 @@ DROP USER AUD_SG;
 DROP USER AUD_US;
 DROP USER FIN_SG;
 DROP USER FIN_US;
+DROP USER HS_FIN_SG;
 CREATE USER HR_SG IDENTIFIED BY HR_SG;
 CREATE USER HR_US IDENTIFIED BY HR_US;
 CREATE USER HR_GLOB IDENTIFIED BY HR_GLOB;
@@ -176,7 +177,8 @@ CREATE USER AUD_SG IDENTIFIED BY AUD_SG;
 CREATE USER AUD_US IDENTIFIED BY AUD_US;
 CREATE USER FIN_SG IDENTIFIED BY FIN_SG;
 CREATE USER FIN_US IDENTIFIED BY FIN_US;
-GRANT CONNECT TO HR_SG, HR_US, HR_GLOB, AUD_SG, AUD_US, FIN_SG, FIN_US;
+CREATE USER HS_FIN_SG IDENTIFIED BY HS_FIN_SG;
+GRANT CONNECT TO HR_SG, HR_US, HR_GLOB, AUD_SG, AUD_US, FIN_SG, FIN_US, HS_FIN_SG;
 GRANT SELECT, UPDATE, DELETE, INSERT ON DB_OWNER.employees TO PUBLIC;
 GRANT SELECT, UPDATE, DELETE, INSERT ON DB_OWNER.reports TO PUBLIC;
 GRANT SELECT, UPDATE, DELETE, INSERT ON DB_OWNER.hr_reviews TO PUBLIC;
@@ -187,13 +189,14 @@ GRANT SELECT ON DB_OWNER.locations TO PUBLIC;
 
 CONNECT DB_OWNER/DB_OWNER
 BEGIN
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_SG','HS:HR,GE:SG');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_US','HS:HR,GE:US');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_GLOB','HS:HR,GE:GLOB');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_SG','S:HR,GE:SG');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_US','S:HR,GE:US');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_GLOB','S:HR,GE:GLOB');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_SG','HS:AUD,GE,HR,FIN:SG');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_US','HS:AUD,GE,HR,FIN:US');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_SG','HS:FIN,GE:SG');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_US','HS:FIN,GE:US');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_SG','S:FIN,GE:SG');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_US','S:FIN,GE:US');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HS_FIN_SG','HS:FIN,GE:SG');
 END;
 /
 rem ====================================================================
@@ -216,7 +219,7 @@ DECLARE
 BEGIN
     SELECT COUNT(*) INTO counter FROM DB_OWNER.employees;
     IF counter != 14 THEN
-        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of employees.');
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
     END IF;
 END;
 /
@@ -227,115 +230,238 @@ DECLARE
 BEGIN
     SELECT COUNT(*) INTO counter FROM DB_OWNER.employees;
     IF counter != 6 THEN
-        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of employees.');
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
     END IF;
 END;
 /
 rem ====================================================================
 rem  Test: reports table
 rem ====================================================================
-CONNECT DB_OWNER/DB_OWNER;
-SELECT id, author, link FROM DB_OWNER.reports;
+--CONNECT DB_OWNER/DB_OWNER;
+--SELECT id, author, link FROM DB_OWNER.reports;
+
 -- Will return all the audit,finance,hr reports from SG
 CONNECT AUD_SG/AUD_SG;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT COUNT(R.id) --, R.author, CP.group_type, C.country_code 
+        INTO counter
+        FROM DB_OWNER.reports R
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 315 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;
+/
 -- Will return all the audit,finance,hr reports from US
 CONNECT AUD_US/AUD_US;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        INTO counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 186 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;
+/
 -- Will return all the finance reports from SG
 CONNECT FIN_SG/FIN_SG;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        into counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 
+    IF counter != 104 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;
+/
+-- Will return all the finance reports from SG including the highly sensitive one
+CONNECT HS_FIN_SG/HS_FIN_SG;
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        into counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 
+    IF counter != 105 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;
+/
 -- Will return all the finance reports from US
 CONNECT FIN_US/FIN_US;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --,R.author, CP.group_type, C.country_code
+        into counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 74 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Will return all the hr reports from SG
 CONNECT HR_SG/HR_SG;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --,R.author, CP.group_type, C.country_code
+        into counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 85 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Will return all the hr reports from US
 CONNECT HR_US/HR_US;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --,R.author, CP.group_type, C.country_code
+        into counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 74 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Will return all the HR reports from US and SG
 CONNECT HR_GLOB/HR_GLOB;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --,R.author, CP.group_type, C.country_code
+        into counter
+        FROM DB_OWNER.reports R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 159 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 rem ====================================================================
 rem  Test: hr_reviews table
 rem ====================================================================
 -- Will only return the reviews in SG
 CONNECT HR_SG/HR_SG;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        INTO counter
+        FROM DB_OWNER.hr_reviews R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 56 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Will only return the hr reviews in US
 CONNECT HR_US/HR_US;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        INTO counter
+        FROM DB_OWNER.hr_reviews R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 44 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Will return the hr reviews of all countries.
 CONNECT HR_GLOB/HR_GLOB;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        INTO counter
+        FROM DB_OWNER.hr_reviews R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 100 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Will only return the reviews from US.
 CONNECT AUD_US/AUD_US;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        INTO counter
+        FROM DB_OWNER.hr_reviews R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 44 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   
+/
 -- Should not return any hr_reviews.
 CONNECT FIN_US/FIN_US;
-SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
-    INNER JOIN DB_OWNER.employees E ON R.author = E.id
-    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
-    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
-    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+DECLARE
+    counter INT;
+BEGIN
+    SELECT count(R.id) --, R.author, CP.group_type, C.country_code
+        INTO counter
+        FROM DB_OWNER.hr_reviews R 
+        INNER JOIN DB_OWNER.employees E ON R.author = E.id
+        INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+        INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+        INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    IF counter != 0 THEN
+        RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
+    END IF;
+END;   

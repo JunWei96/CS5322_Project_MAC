@@ -1,3 +1,5 @@
+CONNECT DB_OWNER/DB_OWNER;
+
 DELETE FROM corporation_groups;
 
 -- Group at location in SG

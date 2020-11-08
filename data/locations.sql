@@ -1,3 +1,4 @@
+CONNECT DB_OWNER/DB_OWNER;
 DELETE FROM locations;
 
 INSERT INTO DB_OWNER.locations (id, country_id, address, postal_code, city) VALUES (1, 1, 'Science Park Drive 14', 'S1234', 'Singapore');

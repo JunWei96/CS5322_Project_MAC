@@ -1,3 +1,5 @@
+CONNECT DB_OWNER/DB_OWNER
+
 DELETE FROM employees;
 
 INSERT INTO DB_OWNER.employees (id,job_id,corporation_group_id,slug,full_name,date_of_birth,email,start_date) VALUES (1,4,4,'OWEN','Owen X. Richmond','30-Dec-90','owen@gmail.com','19-Nov-20');

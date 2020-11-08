@@ -1,3 +1,5 @@
+CONNECT DB_OWNER/DB_OWNER;
+
 DELETE FROM reports;
 
 insert into DB_OWNER.reports (id, author, date_created, name, link) values (1, 11, '03-Nov-2019', 'Prodder', 'www.file_bucket.com');
@@ -505,3 +507,6 @@ insert into DB_OWNER.reports (id, author, date_created, name, link) values (500,
 COMMIT;
 
 SELECT * FROM DB_OWNER.reports;
+
+CONNECT HS_FIN_SG/HS_FIN_SG;
+insert into DB_OWNER.reports (id, author, date_created, name, link) values (501, 5, '13-Oct-2020', 'Sensitive file', 'www.file.com');

@@ -1,3 +1,4 @@
+CONNECT DB_OWNER/DB_OWNER;
 DELETE FROM hr_reviews;
 
 INSERT INTO DB_OWNER.hr_reviews (id, author, employee, date_created, link) values (1, 12, 8, '04-Apr-2020', 'www.file_bucket.com');
