@@ -195,8 +195,8 @@ BEGIN
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_SG','S:HR,GE:SG');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_US','S:HR,GE:US');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HR_GLOB','S:HR,GE:GLOB');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_SG','HS:AUD,GE,HR,FIN:SG');
-    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_US','HS:AUD,GE,HR,FIN:US');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_SG','HS:AUD,GE:SG');
+    SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','AUD_US','HS:AUD,GE:US');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_SG','S:FIN,GE:SG');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','FIN_US','S:FIN,GE:US');
     SA_USER_ADMIN.SET_USER_LABELS('HR_OLS_POLICY','HS_FIN_SG','HS:FIN,GE:SG');
@@ -207,6 +207,8 @@ rem  Apply privileges
 rem ====================================================================
 CONNECT DB_OWNER/DB_OWNER
 EXECUTE SA_USER_ADMIN.SET_USER_PRIVS('HR_OLS_POLICY', 'DB_OWNER', 'FULL');
+EXECUTE SA_USER_ADMIN.SET_USER_PRIVS('HR_OLS_POLICY', 'AUD_SG', 'READ');
+EXECUTE SA_USER_ADMIN.SET_USER_PRIVS('HR_OLS_POLICY', 'AUD_US', 'READ');
 rem ====================================================================
 rem  Populating Tables
 rem ====================================================================
@@ -243,7 +245,7 @@ rem ====================================================================
 --CONNECT DB_OWNER/DB_OWNER;
 --SELECT id, author, link FROM DB_OWNER.reports;
 
--- Will return all the audit,finance,hr reports from SG
+-- Will return all the audit,finance,hr reports from all countries
 CONNECT AUD_SG/AUD_SG;
 DECLARE
     counter INT;
@@ -255,12 +257,12 @@ BEGIN
         INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
         INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
         INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    IF counter != 315 THEN
+    IF counter != 501 THEN
         RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
     END IF;
 END;
 /
--- Will return all the audit,finance,hr reports from US
+-- Will return all the audit,finance,hr reports from all countries
 CONNECT AUD_US/AUD_US;
 DECLARE
     counter INT;
@@ -272,7 +274,7 @@ BEGIN
         INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
         INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
         INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    IF counter != 186 THEN
+    IF counter != 501 THEN
         RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
     END IF;
 END;
@@ -435,7 +437,7 @@ BEGIN
     END IF;
 END;   
 /
--- Will only return the reviews from US.
+-- Will only return the reviews from all countries.
 CONNECT AUD_US/AUD_US;
 DECLARE
     counter INT;
@@ -447,7 +449,7 @@ BEGIN
         INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
         INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
         INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    IF counter != 44 THEN
+    IF counter != 100 THEN
         RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
     END IF;
 END;   
@@ -468,4 +470,3 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20000, 'Incorrect number of rows.');
     END IF;
 END;
-
