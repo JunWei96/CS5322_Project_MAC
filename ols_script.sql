@@ -183,7 +183,6 @@ GRANT SELECT, UPDATE, DELETE, INSERT ON DB_OWNER.hr_reviews TO PUBLIC;
 GRANT SELECT ON DB_OWNER.corporation_groups TO PUBLIC;
 GRANT SELECT ON DB_OWNER.countries TO PUBLIC;
 GRANT SELECT ON DB_OWNER.locations TO PUBLIC;
-GRANT SELECT ON DB_OWNER.jobs TO PUBLIC;
 
 
 CONNECT DB_OWNER/DB_OWNER
@@ -261,7 +260,7 @@ SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R
     INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
     INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
     INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
-    
+
 
 -- Will return all the finance reports from US
 CONNECT FIN_US/FIN_US;
@@ -290,7 +289,7 @@ SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R
     INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 
 
--- Will return all the audit reports from US and SG
+-- Will return all the HR reports from US and SG
 CONNECT HR_GLOB/HR_GLOB;
 SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R 
     INNER JOIN DB_OWNER.employees E ON R.author = E.id
@@ -301,6 +300,7 @@ SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.reports R
 rem ====================================================================
 rem  Test: hr_reviews table
 rem ====================================================================
+-- Will only return the reviews in SG
 CONNECT HR_SG/HR_SG;
 SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
     INNER JOIN DB_OWNER.employees E ON R.author = E.id
@@ -308,10 +308,34 @@ SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R
     INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
     INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 
+-- Will only return the hr reviews in US
 CONNECT HR_US/HR_US;
 SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
     INNER JOIN DB_OWNER.employees E ON R.author = E.id
     INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
     INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
     INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+    
+-- Will return the hr reviews of all countries.
+CONNECT HR_GLOB/HR_GLOB;
+SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 
+-- Will only return the reviews from US.
+CONNECT AUD_US/AUD_US;
+SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
+
+-- Should not return any hr_reviews.
+CONNECT FIN_US/FIN_US;
+SELECT R.id, R.author, CP.group_type, C.country_code FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;

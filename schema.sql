@@ -11,12 +11,6 @@ CREATE TABLE DB_OWNER.employees (
   start_date date
 );
 
-CREATE TABLE DB_OWNER.jobs (
-  id int PRIMARY KEY,
-  job_title varchar(100),
-  salary int
-);
-
 CREATE TABLE DB_OWNER.hr_reviews (
   id int PRIMARY KEY,
   author int,
@@ -53,8 +47,6 @@ CREATE TABLE DB_OWNER.corporation_groups (
   name varchar(100),
   group_type varchar(20) DEFAULT 'normal' check (group_type in ('normal', 'hr', 'auditor', 'finance'))
 );
-
-ALTER TABLE DB_OWNER.employees ADD FOREIGN KEY (job_id) REFERENCES jobs (id);
 
 ALTER TABLE DB_OWNER.employees ADD FOREIGN KEY (corporation_group_id) REFERENCES corporation_groups (id);
 
