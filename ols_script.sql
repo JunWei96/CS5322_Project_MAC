@@ -219,6 +219,11 @@ rem  Test: employees table
 rem ====================================================================
 -- Will return the employees from SG
 CONNECT HR_SG/HR_SG;
+SELECT E.id, C.country_code 
+    FROM DB_OWNER.employees E
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -230,6 +235,11 @@ END;
 /
 -- Will return employees from US
 CONNECT HR_US/HR_US;
+SELECT E.id, C.country_code 
+    FROM DB_OWNER.employees E
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -247,6 +257,12 @@ rem ====================================================================
 
 -- Will return all the audit,finance,hr reports from all countries
 CONNECT AUD_SG/AUD_SG;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -264,6 +280,12 @@ END;
 /
 -- Will return all the audit,finance,hr reports from all countries
 CONNECT AUD_US/AUD_US;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -281,6 +303,12 @@ END;
 /
 -- Will return all the finance reports from SG
 CONNECT FIN_SG/FIN_SG;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -299,6 +327,12 @@ END;
 /
 -- Will return all the finance reports from SG including the highly sensitive one
 CONNECT HS_FIN_SG/HS_FIN_SG;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -317,6 +351,12 @@ END;
 /
 -- Will return all the finance reports from US
 CONNECT FIN_US/FIN_US;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -334,6 +374,12 @@ END;
 /
 -- Will return all the hr reports from SG
 CONNECT HR_SG/HR_SG;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -351,6 +397,12 @@ END;
 /
 -- Will return all the hr reports from US
 CONNECT HR_US/HR_US;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -368,6 +420,12 @@ END;
 /
 -- Will return all the HR reports from US and SG
 CONNECT HR_GLOB/HR_GLOB;
+SELECT R.id, R.author, CP.group_type, C.country_code 
+    FROM DB_OWNER.reports R
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -388,6 +446,12 @@ rem  Test: hr_reviews table
 rem ====================================================================
 -- Will only return the reviews in SG
 CONNECT HR_SG/HR_SG;
+SELECT R.id, R.author, CP.group_type, C.country_code
+    FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -405,6 +469,12 @@ END;
 /
 -- Will only return the hr reviews in US
 CONNECT HR_US/HR_US;
+SELECT R.id, R.author, CP.group_type, C.country_code
+    FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -422,6 +492,12 @@ END;
 /
 -- Will return the hr reviews of all countries.
 CONNECT HR_GLOB/HR_GLOB;
+SELECT R.id, R.author, CP.group_type, C.country_code
+    FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -439,6 +515,12 @@ END;
 /
 -- Will only return the reviews from all countries.
 CONNECT AUD_US/AUD_US;
+SELECT R.id, R.author, CP.group_type, C.country_code
+    FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
@@ -456,6 +538,12 @@ END;
 /
 -- Should not return any hr_reviews.
 CONNECT FIN_US/FIN_US;
+SELECT R.id, R.author, CP.group_type, C.country_code
+    FROM DB_OWNER.hr_reviews R 
+    INNER JOIN DB_OWNER.employees E ON R.author = E.id
+    INNER JOIN DB_OWNER.corporation_groups CP ON CP.id = E.corporation_group_id
+    INNER JOIN DB_OWNER.locations LOC ON LOC.id = CP.location_id
+    INNER JOIN DB_OWNER.countries C ON C.id = LOC.country_id;
 DECLARE
     counter INT;
 BEGIN
